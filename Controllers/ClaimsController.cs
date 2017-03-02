@@ -8,38 +8,54 @@ namespace FisherInsuranceApi.Controllers
     public class ClaimsController : Controller
     {
         [HttpPost]
-        public IActionResult Post([FromBody]Claim claim)
+        public IActionResult Post([FromBody] Claim claim)
         {
-            return Ok(db.CreateClaim(claim));
+        var newClaim = db.Claims.Add(claim);
+        db.SaveChanges();
+        return CreatedAtRoute("GetClaim", new { id = claim.Id }, claim);
         }
-        [HttpGet("{id}")]
+
+        [HttpGet("{id}", Name = "GetClaim")]
         public IActionResult Get(int id)
         {
-            return Ok(db.RetrieveQuote(id));
+        return Ok(db.Claims.Find(id));
         }
+
         [HttpPut("{id}")]
-        public IActionResult Put([FromBody]Claim claim)
+        public IActionResult Put(int id, [FromBody] Claim claim)
         {
-            return Ok(db.UpdateClaim(claim));
+        var newClaim = db.Claims.Find(id);
+        if (newClaim == null)
+        {
+        return NotFound();
+        }
+        newClaim = claim;
+        db.SaveChanges();
+        return Ok(newClaim);
         }
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            db.DeleteClaim(id);
-            return Ok();
-        }
-        private IMemoryStore db;
-
-        public ClaimsController(IMemoryStore repo)
+        var claimToDelete = db.Claims.Find(id);
+        if (claimToDelete == null)
         {
-            db = repo;
-            
+        return NotFound();
         }
+        db.Claims.Remove(claimToDelete);
+        db.SaveChangesAsync();
+        return NoContent();
+        }
+
+        private readonly FisherContext db;
+        public ClaimsController(FisherContext context)
+        {
+        db = context;
+        }
+
         [HttpGet]
         public IActionResult GetClaims()
         {
-        return Ok(db.RetrieveAllClaims);
+        return Ok(db.Claims);
         }
-
     }
 }
