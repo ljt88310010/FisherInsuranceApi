@@ -32,6 +32,7 @@ namespace FisherInsuranceApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<FisherContext>();
+            services.AddSingleton<DbSeeder>();
             // Add framework services.
             services.AddIdentity<ApplicationUser, IdentityRole>(config =>
             {
@@ -46,7 +47,7 @@ namespace FisherInsuranceApi
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory
-loggerFactory)
+loggerFactory, DbSeeder dbSeeder)
 {
 loggerFactory.AddConsole(Configuration.GetSection("Logging"));
 loggerFactory.AddDebug();
@@ -74,6 +75,14 @@ ValidateAudience = false
 //or this
 //app.UseCookieAuthentication();
 app.UseMvc();
+try
+{
+dbSeeder.SeedAsync().Wait();
+}
+catch (AggregateException e)
+{
+throw new Exception(e.ToString());
+}
 }
     }
 }
