@@ -28,11 +28,6 @@ datatarget='.navbar-collapse'>
 <span class='glyphicon glyphicon-list-alt'></span> Claims
 </a>
 </li>
-<li>
-<a [routerLink]="['login']">
-<span class='glyphicon glyphicon-log-in'></span> Login
-</a>
-</li>
 <li *ngIf="!authService.isLoggedIn()"
 [class.active]="isActive(['login'])">
 <a class="login" [routerLink]="['login']">Login</a>
